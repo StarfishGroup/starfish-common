@@ -14,7 +14,7 @@ pub mod http;
 #[cfg(feature = "log")]
 pub mod log;
 #[cfg(feature = "log")]
-pub use tracing::{self, debug, error, info, warn};
+pub use tracing::{self, debug, error, info, instrument, warn};
 
 #[cfg(feature = "orm")]
 pub mod orm;
@@ -36,6 +36,7 @@ pub mod web;
 pub mod runtime;
 
 pub use anyhow::{anyhow, bail, ensure, Error as AnyError, Ok as AnyOk, Result};
+pub use async_trait::async_trait;
 pub use chrono::{self, prelude::*};
 pub use derive_more;
 pub use futures::{self, prelude::*};
