@@ -1,0 +1,67 @@
+[package]
+name = "starfish-common"
+version = "1.0.0"
+authors = ["husky <husky.robot.dog@gmail.com>"]
+edition = "2021"
+license = "MIT"
+repository = "https://github.com/StarfishGroup/starfish"
+homepage = "https://github.com/StarfishGroup/starfish"
+description = "海星量化平台"
+readme = "README.md"
+exclude = [".vscode"]
+
+[dependencies]
+# async
+tokio = { version = "1.36.0", features = ["full"] }
+futures = { version = "0.3.30" }
+async-trait = { version = "0.1.77" }
+# common
+anyhow = { version = "1.0.75", features = ["backtrace"] }
+config = { version = "0.14.0", default-features = false, features = [
+    "toml",
+], optional = true }
+num_cpus = { version = "1.16.0" }
+derive_more = { version = "1.0.0-beta.6", features = ["full"] }
+# serde
+serde = { version = "1.0.197", features = ["derive"] }
+serde_json = { version = "1.0.114" }
+serde_with = { version = "3.6.1" }
+serde_urlencoded = { version = "0.7" }
+strum = { version = "0.26.1", features = ["derive"] }
+# tracing
+tracing = { version = "0.1.40", optional = true }
+tracing-subscriber = { version = "0.3.18", optional = true }
+tracing-appender = { version = "0.2.3", optional = true }
+# datetime
+chrono = { version = "0.4.34", features = ["serde"] }
+# http
+reqwest = { version = "0.12.1", default-features = false, features = [
+    "rustls-tls",
+    "json",
+], optional = true }
+# decimal
+rust_decimal = { version = "1.34" }
+rust_decimal_macros = { version = "1.34", features = ["reexportable"] }
+# orm
+sea-orm = { version = "0.12.14", features = [
+    "sqlx-mysql",
+    "runtime-tokio-rustls",
+], optional = true }
+# snowflake
+snowflaked = { version = "1.0.2", features = ["sync"], optional = true }
+# encrypt
+ring = { version = "0.17.8", optional = true }
+base64 = { version = "0.22.0", optional = true }
+# web
+axum = { version = "0.7.2", optional = true }
+tower-http = { version = "0.5.0", features = ["trace"], optional = true }
+
+[features]
+default = []
+env = ["dep:config"]
+orm = ["dep:sea-orm"]
+encrypt = ["dep:ring", "dep:base64"]
+log = ["dep:tracing", "dep:tracing-subscriber", "dep:tracing-appender"]
+http = ["dep:reqwest"]
+uuid = ["dep:snowflaked"]
+web = ["dep:axum", "dep:tower-http"]
