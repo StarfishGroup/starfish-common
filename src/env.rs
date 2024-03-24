@@ -41,6 +41,15 @@ fn default_orm_max_conn() -> u32 {
     num_cpus::get() as u32
 }
 
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct Rpc {
+    #[serde(default = "default_rpc_bind")]
+    pub bind: String,
+}
+fn default_rpc_bind() -> String {
+    "0.0.0.0:10000".into()
+}
+
 pub fn init<'de, T: Deserialize<'de>>() -> anyhow::Result<T> {
     let settings = config::Config::builder()
         .add_source(config::File::with_name("config.toml").required(false))

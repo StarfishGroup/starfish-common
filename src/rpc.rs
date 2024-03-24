@@ -1,11 +1,19 @@
 mod rpc {
     tonic::include_proto!("starfish");
 }
+use anyhow::anyhow;
 use prost_wkt_types::Any;
-use std::pin::Pin;
+use std::{borrow::Cow, net::ToSocketAddrs, pin::Pin};
 use tokio::sync::mpsc::{channel, Receiver};
 use tokio_stream::{wrappers::ReceiverStream, Stream, StreamExt};
-use tonic::{Request, Response, Status, Streaming};
+use tonic::{
+    transport::{Channel, Server},
+    Request, Response, Status, Streaming,
+};
+
+use crate::env;
+
+use self::rpc::api_client::ApiClient;
 
 #[async_trait::async_trait]
 pub trait ServerHandle {
@@ -96,4 +104,29 @@ impl rpc::api_server::Api for RpcServer {
             Box::pin(ReceiverStream::new(rx)) as Self::SubscribeStream
         ))
     }
+}
+
+pub async fn init_server(
+    config: &env::Rpc,
+    handle: Box<dyn ServerHandle + Send + Sync>,
+) -> anyhow::Result<()> {
+    let rpc_server = RpcServer::new(handle);
+
+    Server::builder()
+        .add_service(rpc::api_server::ApiServer::new(rpc_server))
+        .serve(
+            config
+                .bind
+                .to_socket_addrs()?
+                .next()
+                .ok_or(anyhow!("parse address failed : {}", config.bind))?,
+        )
+        .await?;
+
+    Ok(())
+}
+
+pub async fn init_client(url: String) -> anyhow::Result<ApiClient<Channel>> {
+    let client = ApiClient::connect(url).await?;
+    Ok(client)
 }
