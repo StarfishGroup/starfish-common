@@ -33,6 +33,17 @@ pub use tower_http;
 #[cfg(feature = "web")]
 pub mod web;
 
+#[cfg(feature = "rpc")]
+pub mod rpc;
+#[cfg(feature = "rpc")]
+pub use prost;
+#[cfg(feature = "rpc")]
+pub use prost_wkt;
+#[cfg(feature = "rpc")]
+pub use prost_wkt_types;
+#[cfg(feature = "rpc")]
+pub use tonic;
+
 pub mod runtime;
 
 pub use anyhow::{anyhow, bail, ensure, Error as AnyError, Ok as AnyOk, Result};
