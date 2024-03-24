@@ -3,7 +3,7 @@ mod rpc {
 }
 use anyhow::anyhow;
 use prost_wkt_types::Any;
-use std::{borrow::Cow, net::ToSocketAddrs, pin::Pin};
+use std::{net::ToSocketAddrs, pin::Pin};
 use tokio::sync::mpsc::{channel, Receiver};
 use tokio_stream::{wrappers::ReceiverStream, Stream, StreamExt};
 use tonic::{
