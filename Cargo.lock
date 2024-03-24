@@ -2746,6 +2746,7 @@ dependencies = [
  "snowflaked",
  "strum 0.26.2",
  "tokio",
+ "tokio-stream",
  "tonic",
  "tonic-build",
  "tower-http",

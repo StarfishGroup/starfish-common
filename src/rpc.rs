@@ -1,76 +1,99 @@
 mod rpc {
     tonic::include_proto!("starfish");
 }
-// use futures::prelude::*;
-// use prost_types::Any;
-// use std::pin::Pin;
-// use tonic::{Request, Response, Status, Streaming};
+use prost_wkt_types::Any;
+use std::pin::Pin;
+use tokio::sync::mpsc::{channel, Receiver};
+use tokio_stream::{wrappers::ReceiverStream, Stream, StreamExt};
+use tonic::{Request, Response, Status, Streaming};
 
-// #[derive(Default)]
-// struct RpcServer;
+#[async_trait::async_trait]
+pub trait ServerHandle {
+    async fn call(&self, request: Any) -> anyhow::Result<rpc::Result>;
+    async fn subscribe(&self, request: Any) -> anyhow::Result<Receiver<rpc::Result>>;
+    async fn channel(&self, request: Receiver<Any>) -> anyhow::Result<Receiver<rpc::Result>>;
+}
 
-// #[tonic::async_trait]
-// impl rpc::api_server::Api for RpcServer {
-//     type SubscribeStream = Pin<Box<dyn Stream<Item = Result<rpc::Result, Status>> + Send>>;
-//     type ChannelStream = Pin<Box<dyn Stream<Item = Result<rpc::Result, Status>> + Send>>;
+struct RpcServer {
+    handle: Box<dyn ServerHandle + Send + Sync>,
+}
 
-//     async fn call(&self, request: Request<Any>) -> Result<Response<rpc::Result>, Status> {
-//         let a = request.into_inner();
-//         Ok(Response::new(rpc::Result {
-//             code: Some(rpc::Code {
-//                 code: 0,
-//                 msg: a.type_url,
-//             }),
-//             data: None,
-//         }))
-//     }
+impl RpcServer {
+    pub fn new(handle: Box<dyn ServerHandle + Send + Sync>) -> Self {
+        Self { handle }
+    }
+}
 
-//     async fn subscribe(
-//         &self,
-//         request: Request<Any>,
-//     ) -> Result<Response<Self::SubscribeStream>, Status> {
-//         todo!()
-//     }
+#[async_trait::async_trait]
+impl rpc::api_server::Api for RpcServer {
+    type SubscribeStream = Pin<Box<dyn Stream<Item = Result<rpc::Result, Status>> + Send>>;
+    type ChannelStream = Pin<Box<dyn Stream<Item = Result<rpc::Result, Status>> + Send>>;
 
-//     async fn channel(
-//         &self,
-//         request: Request<Streaming<Any>>,
-//     ) -> Result<Response<Self::ChannelStream>, Status> {
-//         todo!()
-//     }
-// }
+    async fn call(&self, request: Request<Any>) -> Result<Response<rpc::Result>, Status> {
+        let result = self
+            .handle
+            .call(request.into_inner())
+            .await
+            .map_err(|err| Status::new(tonic::Code::Internal, err.to_string()))?;
+        Ok(Response::new(result))
+    }
 
-#[cfg(test)]
-mod tests {
-    use super::{rpc::api_server::ApiServer, rpc::Code};
-    use prost_wkt_types::*;
-    use tonic::transport::Server;
+    async fn subscribe(
+        &self,
+        request: Request<Any>,
+    ) -> Result<Response<Self::SubscribeStream>, Status> {
+        let mut result = self
+            .handle
+            .subscribe(request.into_inner())
+            .await
+            .map_err(|err| Status::new(tonic::Code::Internal, err.to_string()))?;
+        let (tx, rx) = channel(1024);
+        tokio::spawn(async move {
+            while let Some(item) = result.recv().await {
+                if tx.send(Ok(item)).await.is_err() {
+                    break;
+                }
+            }
+            tx.closed().await;
+        });
+        Ok(Response::new(
+            Box::pin(ReceiverStream::new(rx)) as Self::SubscribeStream
+        ))
+    }
 
-    // #[tokio::test]
-    // async fn test_server() -> Result<(), Box<dyn std::error::Error>> {
-    //     let addr = "127.0.0.1:12345".parse().unwrap();
-    //     let rpc = RpcServer::default();
-    //     Server::builder()
-    //         .add_service(ApiServer::new(rpc))
-    //         .serve(addr)
-    //         .await?;
-    //     Ok(())
-    // }
-
-    #[tokio::test]
-    async fn test_client() -> Result<(), Box<dyn std::error::Error>> {
-        let code = Code {
-            code: 1,
-            msg: "666".to_owned(),
-        };
-        let a = code.type_url();
-        println!("{}", a);
-        let a = Any::try_pack(code)?;
-        println!("{:?}", a);
-        // let client = ApiClient::connect("127.0.0.1:12345").await?;
-
-        // let c = Code::default();
-        // let result = client.call(Request::new(Any::fr)).await?;
-        Ok(())
+    async fn channel(
+        &self,
+        request: Request<Streaming<Any>>,
+    ) -> Result<Response<Self::ChannelStream>, Status> {
+        let (tx, rx) = channel(1024);
+        let mut request = request.into_inner();
+        let _tx = tx.clone();
+        tokio::spawn(async move {
+            while let Some(item) = request.next().await {
+                if let Ok(item) = item {
+                    if _tx.send(item).await.is_err() {
+                        break;
+                    }
+                }
+            }
+            _tx.closed().await;
+        });
+        let mut result = self
+            .handle
+            .channel(rx)
+            .await
+            .map_err(|err| Status::new(tonic::Code::Internal, err.to_string()))?;
+        let (tx, rx) = channel(1024);
+        tokio::spawn(async move {
+            while let Some(item) = result.recv().await {
+                if tx.send(Ok(item)).await.is_err() {
+                    break;
+                }
+            }
+            tx.closed().await;
+        });
+        Ok(Response::new(
+            Box::pin(ReceiverStream::new(rx)) as Self::SubscribeStream
+        ))
     }
 }
