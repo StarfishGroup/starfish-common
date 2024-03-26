@@ -8,7 +8,7 @@ repository = "https://github.com/StarfishGroup/starfish"
 homepage = "https://github.com/StarfishGroup/starfish"
 description = "海星量化平台"
 readme = "README.md"
-exclude = [".vscode"]
+exclude = [".vscode", "rustfmt.toml"]
 
 [dependencies]
 # async

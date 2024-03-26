@@ -4,18 +4,18 @@ package starfish;
 
 import "google/protobuf/any.proto";
 
-message Code {
+message StarfishCode {
     int64 code = 1;
 	string msg = 2;
 }
 
-message Result {
-    Code code = 1;
+message StarfishResult {
+    StarfishCode code = 1;
     google.protobuf.Any data = 2;
 }
 
-service API {
-    rpc Call (google.protobuf.Any) returns (Result) {}
-    rpc Subscribe (google.protobuf.Any) returns (stream Result) {}
-    rpc Channel (stream google.protobuf.Any) returns (stream Result) {}
+service Starfish {
+    rpc Call (google.protobuf.Any) returns (StarfishResult) {}
+    rpc Subscribe (google.protobuf.Any) returns (stream StarfishResult) {}
+    rpc Stream (stream google.protobuf.Any) returns (stream StarfishResult) {}
 }
