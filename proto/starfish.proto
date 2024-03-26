@@ -14,8 +14,14 @@ message StarfishResult {
     google.protobuf.Any data = 2;
 }
 
-service Starfish {
+service StarfishCall {
     rpc Call (google.protobuf.Any) returns (StarfishResult) {}
-    rpc Subscribe (google.protobuf.Any) returns (stream StarfishResult) {}
-    rpc Stream (stream google.protobuf.Any) returns (stream StarfishResult) {}
+}
+
+service StarfishSubscribe {
+    rpc Call (google.protobuf.Any) returns (stream StarfishResult) {}
+}
+
+service StarfishStream {
+    rpc Call (google.protobuf.Any) returns (StarfishResult) {}
 }
