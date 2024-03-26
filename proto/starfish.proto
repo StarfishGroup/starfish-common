@@ -18,10 +18,10 @@ service StarfishCall {
     rpc Call (google.protobuf.Any) returns (StarfishResult) {}
 }
 
-service StarfishSubscribe {
-    rpc Call (google.protobuf.Any) returns (stream StarfishResult) {}
-}
+// service StarfishSubscribe {
+//     rpc Subscribe (google.protobuf.Any) returns (stream StarfishResult) {}
+// }
 
-service StarfishStream {
-    rpc Call (google.protobuf.Any) returns (StarfishResult) {}
-}
+// service StarfishStream {
+//     rpc Stream (google.protobuf.Any) returns (StarfishResult) {}
+// }
