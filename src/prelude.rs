@@ -33,7 +33,7 @@ pub use sqlx;
 pub use reqwest;
 
 #[cfg(feature = "log")]
-pub use tracing;
+pub use tracing::{self, debug, error, info, warn, Instrument as _};
 
 #[cfg(feature = "crypto")]
 pub use base64;
