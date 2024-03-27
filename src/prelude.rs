@@ -27,7 +27,7 @@ pub use tokio::{
 pub use chrono::{self, prelude::*};
 
 #[cfg(feature = "database")]
-pub use sqlx;
+pub use sea_orm;
 
 #[cfg(feature = "http")]
 pub use reqwest;
