@@ -1,6 +1,6 @@
 [package]
 name = "starfish-common"
-version = "1.2.0"
+version = "1.2.1"
 authors = ["husky <husky.robot.dog@gmail.com>"]
 edition = "2021"
 license = "MIT"
@@ -22,6 +22,7 @@ config = { version = "0.14.0", default-features = false, features = [
 ], optional = true }
 chrono = { version = "0.4.34", features = ["serde"], optional = true }
 num_cpus = { version = "1.16.0" }
+rust_decimal = { version = "1.35.0", optional = true }
 # serde
 serde = { version = "1.0.197", features = ["derive"] }
 serde_json = { version = "1.0.114" }
@@ -45,6 +46,8 @@ sqlx = { version = "0.7.4", features = [
     "runtime-tokio",
     "tls-rustls",
     "mysql",
+    "chrono",
+    "rust_decimal",
 ], optional = true }
 # web
 actix-web = { version = "4.5.1", optional = true }
@@ -52,7 +55,7 @@ actix-web = { version = "4.5.1", optional = true }
 [features]
 default = []
 env = ["dep:config"]
-database = ["dep:sqlx"]
+database = ["dep:sqlx", "chrono", "decimal"]
 crypto = ["dep:ring", "dep:base64"]
 log = [
     "dep:tracing",
@@ -64,3 +67,4 @@ http = ["dep:reqwest"]
 uuid = ["dep:snowflaked"]
 chrono = ["dep:chrono"]
 web = ["dep:actix-web"]
+decimal = ["dep:rust_decimal"]

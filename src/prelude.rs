@@ -32,3 +32,6 @@ pub use ring;
 
 #[cfg(feature = "web")]
 pub use actix_web;
+
+#[cfg(feature = "decimal")]
+pub use rust_decimal;
