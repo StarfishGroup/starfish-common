@@ -2382,7 +2382,7 @@ dependencies = [
 
 [[package]]
 name = "starfish-common"
-version = "1.2.1"
+version = "1.2.2"
 dependencies = [
  "actix-web",
  "anyhow",
@@ -2391,6 +2391,7 @@ dependencies = [
  "chrono",
  "config",
  "futures",
+ "log",
  "num_cpus",
  "reqwest",
  "ring",

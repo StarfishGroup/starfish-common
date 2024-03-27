@@ -33,6 +33,7 @@ pub struct Database {
 	#[serde(default)]
 	pub idle_timeout: Option<u64>,
 	pub show_sql: bool,
+	pub slow_sql_millis: Option<u64>,
 }
 fn default_database_port() -> u32 {
 	3306
