@@ -1,9 +1,9 @@
 pub use anyhow::{anyhow, bail, ensure, Error as AnyError, Ok as AnyOk, Result};
 pub use async_trait;
-pub use futures;
+pub use futures::{self, prelude::*};
 pub use num_cpus;
 pub use serde;
-pub use serde_json;
+pub use serde_json::{self, json, Map as JsonMap, Value as JsonValue};
 pub use std::{
 	borrow::Cow,
 	collections::{HashMap, VecDeque},
@@ -11,10 +11,20 @@ pub use std::{
 	sync::Arc,
 	time::Duration as StdDuration,
 };
-pub use tokio;
+pub use tokio::{
+	self, join, select,
+	signal::ctrl_c,
+	spawn,
+	sync::{
+		mpsc::{channel, unbounded_channel, Receiver, Sender, UnboundedReceiver, UnboundedSender},
+		Mutex, MutexGuard, RwLock, RwLockReadGuard,
+	},
+	task::yield_now,
+	time::{interval, interval_at, sleep, sleep_until, timeout, timeout_at, Duration, Instant},
+};
 
 #[cfg(feature = "chrono")]
-pub use chrono;
+pub use chrono::{self, prelude::*};
 
 #[cfg(feature = "database")]
 pub use sqlx;
@@ -34,4 +44,4 @@ pub use ring;
 pub use actix_web;
 
 #[cfg(feature = "decimal")]
-pub use rust_decimal;
+pub use rust_decimal::{self, prelude::*};
