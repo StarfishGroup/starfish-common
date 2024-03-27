@@ -8,8 +8,6 @@ pub mod http;
 pub mod log;
 #[cfg(feature = "orm")]
 pub mod orm;
-#[cfg(feature = "rpc")]
-pub mod rpc;
 pub mod runtime;
 #[cfg(feature = "uuid")]
 pub mod uuid;
