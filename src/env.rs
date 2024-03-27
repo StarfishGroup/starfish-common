@@ -19,16 +19,25 @@ fn default_log_console() -> bool {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Database {
 	pub host: String,
+	#[serde(default = "default_database_port")]
 	pub port: u32,
 	pub username: String,
 	pub password: String,
 	pub database: String,
-	pub url: String,
-	#[serde(default = "default_orm_max_conn")]
+	#[serde(default)]
+	pub url: Option<String>,
+	#[serde(default)]
+	pub min_conn: u32,
+	#[serde(default = "default_database_max_conn")]
 	pub max_conn: u32,
+	#[serde(default)]
+	pub idle_timeout: Option<u64>,
 	pub show_sql: bool,
 }
-fn default_orm_max_conn() -> u32 {
+fn default_database_port() -> u32 {
+	3306
+}
+fn default_database_max_conn() -> u32 {
 	(num_cpus::get() * 2) as u32
 }
 

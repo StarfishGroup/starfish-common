@@ -1,6 +1,6 @@
 [package]
 name = "starfish-common"
-version = "1.1.1"
+version = "1.2.0"
 authors = ["husky <husky.robot.dog@gmail.com>"]
 edition = "2021"
 license = "MIT"
@@ -25,9 +25,7 @@ num_cpus = { version = "1.16.0" }
 # serde
 serde = { version = "1.0.197", features = ["derive"] }
 serde_json = { version = "1.0.114" }
-serde_with = { version = "3.6.1" }
 serde_urlencoded = { version = "0.7" }
-strum = { version = "0.26.1", features = ["derive"] }
 # tracing
 tracing = { version = "0.1.40", optional = true }
 tracing-subscriber = { version = "0.3.18", optional = true }
@@ -42,17 +40,27 @@ snowflaked = { version = "1.0.2", features = ["sync"], optional = true }
 # crypto
 ring = { version = "0.17.8", optional = true }
 base64 = { version = "0.22.0", optional = true }
+# database
+sqlx = { version = "0.7.4", features = [
+    "runtime-tokio",
+    "tls-rustls",
+    "mysql",
+], optional = true }
+# web
+actix-web = { version = "4.5.1", optional = true }
 
 [features]
 default = []
 env = ["dep:config"]
-database = []
+database = ["dep:sqlx"]
 crypto = ["dep:ring", "dep:base64"]
 log = [
     "dep:tracing",
     "dep:tracing-subscriber",
     "dep:tracing-appender",
-    "dep:chrono",
+    "chrono",
 ]
 http = ["dep:reqwest"]
 uuid = ["dep:snowflaked"]
+chrono = ["dep:chrono"]
+web = ["dep:actix-web"]

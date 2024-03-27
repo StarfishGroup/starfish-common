@@ -8,6 +8,7 @@ pub mod env;
 pub mod http;
 #[cfg(feature = "log")]
 pub mod log;
+pub mod prelude;
 pub mod runtime;
 #[cfg(feature = "uuid")]
 pub mod uuid;
